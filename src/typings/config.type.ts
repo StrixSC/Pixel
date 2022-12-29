@@ -4,4 +4,5 @@ export interface Config {
     permission_integer: number;
     deployCommands?: boolean;
     guildId?: string;
+    clientId: string;
 }

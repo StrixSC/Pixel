@@ -1,16 +1,20 @@
-import Client from "./chronos";
+import ExtendedClient from "./chronos";
 import { Config } from "./typings"
 import * as dotenv from "dotenv";
-import { parse } from 'ts-command-line-args';
+import { parse, ArgumentConfig } from 'ts-command-line-args';
 
 dotenv.config();
 
-const { deployCommands } = parse({
-    deployCommands: Boolean
-});
+interface CLIArgs { 
+    deployCommands: boolean;
+}
+
+const { deployCommands } = parse<CLIArgs>({
+    deployCommands: { type: Boolean, optional: true }
+})
 
 
-const { BOT_TOKEN, BOT_PREFIX, PERMISSION_INTEGER } = process.env
+const { BOT_TOKEN, BOT_PREFIX, PERMISSION_INTEGER, BOT_CLIENT_ID } = process.env
 
 if (!BOT_TOKEN) {
     console.error("MISSING BOT TOKEN!!!");
@@ -21,8 +25,8 @@ const config: Config = {
     token: BOT_TOKEN,
     prefix: BOT_PREFIX,
     permission_integer: Number(PERMISSION_INTEGER),
-    deployCommands
+    deployCommands,
+    clientId: BOT_CLIENT_ID
 }
 
-export const client = new Client(config);
-client.registerModules();
+export const client = new ExtendedClient(config);

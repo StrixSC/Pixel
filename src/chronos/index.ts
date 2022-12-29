@@ -1,13 +1,9 @@
 import { RegisterCommandsOptions } from '../typings/register-commands-options';
-import { ApplicationCommandDataResolvable, Client, Collection, ClientEvents } from "discord.js";
+import { ApplicationCommandDataResolvable, Client, Collection, ClientEvents, REST, Routes } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { Command, Config } from "../typings";
 import { Event } from "./event";
-import glob from "glob";
-import { promisify } from "util";
-
-const globPromise = promisify(glob);
 
 class ExtendedClient extends Client {
     public commands: Collection<string, Command> = new Collection();
@@ -25,45 +21,58 @@ class ExtendedClient extends Client {
 
     public async registerModules() {
         const slashCommands: ApplicationCommandDataResolvable[] = [];
-        const commandsPath = join(__dirname, "..", 'commands');
-        const commandFiles = readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
-        console.log(commandFiles);
+        const commandPath = join(__dirname, "..", "commands");
+        const commandFiles = readdirSync(commandPath).filter(file => file.endsWith('.ts'));
         for (const file of commandFiles) {
-            const { command } = await this.importFile(file);
+            const command = await this.importFile(join(commandPath, file));
             if (!command.name) return;
             this.commands.set(command.name, command);
             slashCommands.push(command);
         }
 
-        if(this.config.deployCommands) {
-            this.on('ready', async () => {
-                await this.registerCommands({
-                    commands: slashCommands,
-                    guildId: this.config.guildId
-                });
-
-                console.log("Commands deployed!");
-            })
+        if (this.config.deployCommands) {
+            await this.registerCommands({
+                commands: slashCommands,
+                guildId: this.config.guildId
+            });
         }
 
-        const eventFiles = await globPromise(`${__dirname}/../events/*/*{.ts,.js}`);
+        const eventPath = join(__dirname, "..", "commands");
+        const eventFiles = readdirSync(eventPath).filter(file => file.endsWith('.ts'));
         for (const file of eventFiles) {
-            const event: Event<keyof ClientEvents> = await this.importFile(file);
+            const event: Event<keyof ClientEvents> = await this.importFile(join(eventPath, file));
             this.on(event.event, event.run);
         }
     }
 
-    public async importFile(filePath: string) {
-        return (await import(filePath))?.default;
+    public async importFile(filePath: string): Promise<any> {
+        const module = (await import(filePath)).default;
+        return module;
     }
 
     public async registerCommands({ commands, guildId }: RegisterCommandsOptions) {
-        if(guildId) {
-            this.guilds.cache.get(guildId)?.commands.set(commands);
-            console.log(`Registering commands to ${guildId}`);
-        } else {
-            this.application?.commands.set(commands);
-        }
+        const rest = new REST({ version: '10' }).setToken(this.config.token);
+        (async () => {
+            try {
+                console.log(`Started refreshing ${commands.length} application (/) commands.`);
+                let data: any;
+                if (guildId) {
+                    data = await rest.put(
+                        Routes.applicationGuildCommands(this.config.clientId, guildId),
+                        { body: commands },
+                    );
+                } else {
+                    data = await rest.put(
+                        Routes.applicationCommands(this.config.clientId),
+                        { body: commands },
+                    );
+                }
+
+                console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+            } catch (error) {
+                console.error(error);
+            }
+        })();
     }
 }
 
