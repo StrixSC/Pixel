@@ -37,7 +37,7 @@ class ExtendedClient extends Client {
             });
         }
 
-        const eventPath = join(__dirname, "..", "commands");
+        const eventPath = join(__dirname, "..", "events");
         const eventFiles = readdirSync(eventPath).filter(file => file.endsWith('.ts'));
         for (const file of eventFiles) {
             const event: Event<keyof ClientEvents> = await this.importFile(join(eventPath, file));
