@@ -6,3 +6,9 @@ export const ClistUrls = {
     GetResources: `${BASE_URL}/api/v2/resource`,
     GetResourceInfo: `${BASE_URL}/api/v2/resource/:id`,
 }
+
+export const ClistResourceTypes = {
+    Top10: "resource_top10",
+    CompetitiveProgramming: "resource_cp",
+    CTF: "resource_ctf",
+}
