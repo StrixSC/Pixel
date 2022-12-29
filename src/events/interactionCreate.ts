@@ -1,7 +1,5 @@
-import { CommandInteractionOptionResolver } from 'discord.js';
 import { Event, } from "../chronos/event";
-import { client } from ".."
-import { ExtendedInteraction } from "../typings/command.type"
+import client from ".."
 
 export default new Event('interactionCreate', async (interaction) => {
     if (interaction.isCommand()) {
@@ -9,10 +7,7 @@ export default new Event('interactionCreate', async (interaction) => {
         const command = client.commands.get(interaction.commandName);
         if(!command) return interaction.followUp("You have used a non existant command");
 
-        command.run({
-            args: interaction.options as CommandInteractionOptionResolver,
-            client,
-            interaction: interaction as ExtendedInteraction
-        })
+        console.log(`Received command: ${command.name}`);
+        command.execute(interaction)
     }
 })

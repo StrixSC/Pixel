@@ -11,11 +11,14 @@
     "start:deploy": "ts-node ./src/index.ts --deployCommands"
   },
   "dependencies": {
+    "axios": "^1.2.2",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
-    "glob": "^8.0.3"
+    "glob": "^8.0.3",
+    "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/glob": "^8.0.0",
     "@types/node": "^18.11.18",
     "ts-command-line-args": "^2.3.1",

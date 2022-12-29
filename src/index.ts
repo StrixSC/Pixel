@@ -14,7 +14,7 @@ const { deployCommands } = parse<CLIArgs>({
 })
 
 
-const { BOT_TOKEN, BOT_PREFIX, PERMISSION_INTEGER, BOT_CLIENT_ID } = process.env
+const { BOT_TOKEN, BOT_PREFIX, PERMISSION_INTEGER, BOT_CLIENT_ID, GUILD_ID } = process.env
 
 if (!BOT_TOKEN) {
     console.error("MISSING BOT TOKEN!!!");
@@ -26,7 +26,8 @@ const config: Config = {
     prefix: BOT_PREFIX,
     permission_integer: Number(PERMISSION_INTEGER),
     deployCommands,
+    guildId: GUILD_ID,
     clientId: BOT_CLIENT_ID
 }
 
-export const client = new ExtendedClient(config);
+export default new ExtendedClient(config);

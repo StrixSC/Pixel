@@ -1,4 +1,3 @@
-import { RegisterCommandsOptions } from '../typings/register-commands-options';
 import { ApplicationCommandDataResolvable, Client, Collection, ClientEvents, REST, Routes } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
@@ -7,7 +6,6 @@ import { Event } from "./event";
 
 class ExtendedClient extends Client {
     public commands: Collection<string, Command> = new Collection();
-    public aliases: Collection<string, Command> = new Collection();
     public config: Config;
 
     constructor(config: Config) {
@@ -18,18 +16,20 @@ class ExtendedClient extends Client {
         this.login(this.config.token);
         this.registerModules();
     }
-
+    
     public async registerModules() {
         const slashCommands: ApplicationCommandDataResolvable[] = [];
         const commandPath = join(__dirname, "..", "commands");
         const commandFiles = readdirSync(commandPath).filter(file => file.endsWith('.ts'));
         for (const file of commandFiles) {
             const command = await this.importFile(join(commandPath, file));
-            if (!command.name) return;
-            this.commands.set(command.name, command);
-            slashCommands.push(command);
+            const parsed_command = { ...command.data.toJSON(), execute: command.execute };
+            if (command.data.name) {
+                this.commands.set(parsed_command.name, parsed_command);
+                slashCommands.push(parsed_command);
+            };
         }
-
+        
         if (this.config.deployCommands) {
             await this.registerCommands({
                 commands: slashCommands,
@@ -43,6 +43,7 @@ class ExtendedClient extends Client {
             const event: Event<keyof ClientEvents> = await this.importFile(join(eventPath, file));
             this.on(event.event, event.run);
         }
+
     }
 
     public async importFile(filePath: string): Promise<any> {
@@ -50,7 +51,7 @@ class ExtendedClient extends Client {
         return module;
     }
 
-    public async registerCommands({ commands, guildId }: RegisterCommandsOptions) {
+    public async registerCommands({ commands, guildId }) {
         const rest = new REST({ version: '10' }).setToken(this.config.token);
         (async () => {
             try {
