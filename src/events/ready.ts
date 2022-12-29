@@ -1,10 +1,5 @@
-import { Client, Events } from "discord.js";
+import { Event } from "../chronos/event";
 
-const ReadyEvent = {
-	name: Events.ClientReady,
-	run(client: Client) {
-		console.log(`Ready! Logged in as ${client.user?.tag}`);
-	},
-}
-
-export default ReadyEvent;
+export default new Event('ready', () => {
+	console.log("Chronos is online!");
+});

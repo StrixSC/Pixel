@@ -17,6 +17,8 @@ try {
 
 client.on("ready", async () => {
     await registerCommands();
+    console.log("Commands deployed successfully");
+    process.exit();
 });
 
 const registerCommands = async () => {

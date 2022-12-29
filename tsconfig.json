@@ -22,10 +22,11 @@
     },
     "include": [
         "src/**/*",
-        "tests/**/*"
+        "tests/**/*",
+        "src/environment.d.ts"
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "**/*.spec.ts"
     ],
 }
