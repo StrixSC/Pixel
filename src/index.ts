@@ -30,4 +30,6 @@ const config: Config = {
     clientId: BOT_CLIENT_ID
 }
 
-export default new ExtendedClient(config);
+const client = new ExtendedClient(config);
+
+export default client;

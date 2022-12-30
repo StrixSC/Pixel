@@ -45,7 +45,7 @@ export default {
                 .setTitle(`${contest.event} | ${contest.host}`)
                 .setURL(contest.href)
                 .setFooter({
-                    text:`🕛 ${new Date(contest.start).toLocaleString()} | ⏳ ${duration} | 📌 ${contest.host}`
+                    text:`🕛 ${new Date(contest.start).toLocaleString()}  |  ⏳ ${duration} |  📌 ${contest.host}`
                 })
                 embeds.push(embed);
             }
@@ -55,6 +55,7 @@ export default {
             });
         } catch (e) {
             console.error(e);
+            interaction.followUp("Oops... Something seemes to have happened to Chronos for a brief period of time. Please try again later! 😭")
         }
 
     },
