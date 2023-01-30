@@ -1,6 +1,6 @@
 {
-  "name": "Chronos",
-  "description": "Chronos is a utility discod bot that allows reminding, tracking and notifying of upcoming hacking and programming events !",
+  "name": "pixel",
+  "description": "",
   "main": "./src/index.ts",
   "scripts": {
     "start": "ts-node ./src/index.ts",
