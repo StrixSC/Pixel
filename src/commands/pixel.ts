@@ -1,7 +1,13 @@
-import { InteractionResult } from "../typings/index";
-import { SlashCommandBuilder } from "discord.js";
-import { getTrendingEmotes } from "../bttv/bttv";
-import Emote from "../bttv/emote.model";
+import { EMOTE_URL_CDN, getEmotesWithSearchQuery } from "./../bttv/bttv";
+import { SearchEmote } from "./../bttv/emote.model";
+import {
+  AutocompleteInteraction,
+  CacheType,
+  CommandInteraction,
+  EmbedBuilder,
+  Interaction,
+  SlashCommandBuilder,
+} from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -14,11 +20,40 @@ export default {
         .setAutocomplete(true)
     ),
 
-  async execute(interaction: any) {},
+  async execute(interaction: CommandInteraction) {
+    let done = true;
+    const value = interaction.options.data[0].value.toString();
+    if (!value) {
+      done = false;
+    }
+    if (value.toString().startsWith(EMOTE_URL_CDN)) {
+      interaction.followUp(value as string);
+    } else {
+      const emotes = await getEmotesWithSearchQuery(value.toString());
+      if (emotes.length != 0) {
+        interaction.followUp(emotes[0].url);
+      } else {
+        done = false;
+      }
+    }
 
-  async autocomplete(interaction: any) {
+    if (!done) {
+      return interaction.followUp({
+        ephemeral: true,
+        content: "Could not find the emote you were looking for...",
+      });
+    }
+  },
+
+  async autocomplete(interaction: AutocompleteInteraction<CacheType>) {
     try {
-      const emotes = (await getTrendingEmotes()) as Emote[];
+      const focusedValue = interaction.options.getFocused();
+      if (focusedValue.length < 3) {
+        return;
+      }
+      const emotes = (await getEmotesWithSearchQuery(
+        interaction.options.getFocused()
+      )) as SearchEmote[];
       const response = [];
       emotes.forEach((e) => {
         response.push({
@@ -26,7 +61,7 @@ export default {
           value: e.url,
         });
       });
-      await interaction.respond(response);
+      interaction.respond(response);
     } catch (e) {
       console.error(e);
     }

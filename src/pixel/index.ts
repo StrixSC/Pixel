@@ -22,19 +22,23 @@ class ExtendedClient extends Client {
         const commandPath = join(__dirname, "..", "commands");
         const commandFiles = readdirSync(commandPath).filter(file => file.endsWith('.ts'));
         for (const file of commandFiles) {
-            const command = await this.importFile(join(commandPath, file));
-            const parsed_command = { ...command.data.toJSON(), execute: command.execute };
-            if (command.data.name) {
-                this.commands.set(parsed_command.name, parsed_command);
-                slashCommands.push(parsed_command);
-            };
+          const command = await this.importFile(join(commandPath, file));
+          const parsed_command = {
+            ...command.data.toJSON(),
+            execute: command.execute,
+            autocomplete: command.autocomplete,
+          };
+          if (command.data.name) {
+            this.commands.set(parsed_command.name, parsed_command);
+            slashCommands.push(parsed_command);
+          }
         }
-        
+
         if (this.config.deployCommands) {
-            await this.registerCommands({
-                commands: slashCommands,
-                guildId: this.config.guildId
-            });
+          await this.registerCommands({
+            commands: slashCommands,
+            // guildId: this.config.guildId
+          });
         }
 
         const eventPath = join(__dirname, "..", "events");
@@ -51,7 +55,7 @@ class ExtendedClient extends Client {
         return module;
     }
 
-    public async registerCommands({ commands, guildId }) {
+    public async registerCommands({ commands, guildId="" }) {
         const rest = new REST({ version: '10' }).setToken(this.config.token);
         (async () => {
             try {

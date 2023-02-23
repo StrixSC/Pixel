@@ -23,3 +23,12 @@ export enum ImageType {
   JPEG = "jpeg",
   JPG = "jpg",
 }
+
+export interface SearchEmote {
+  id: string;
+  code: string;
+  imageType: string;
+  animated: boolean;
+  user: any;
+  url: string;
+}
