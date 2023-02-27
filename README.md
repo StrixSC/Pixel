@@ -15,3 +15,6 @@
 </div>
 
 <hr>
+
+
+<small><i> Logo extracted from art by Tridib Das </i></small>
