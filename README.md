@@ -11,7 +11,7 @@
 
 <div align="center">
 <br>
-<img style="width: 500px;" src="./assets/example.png">
+<img style="width: 500px;" src="./assets/pixel.gif">
 </div>
 
 <hr>
