@@ -18,30 +18,53 @@ export default {
         .setName("query")
         .setDescription(`Pixel gifs/images/emotes/emojis matching...`)
         .setAutocomplete(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setRequired(false)
+        .setName("size")
+        .setDescription("Size of the image")
+        .addChoices({ name: "Small", value: "1x" })
+        .addChoices({ name: "Medium", value: "2x" })
+        .addChoices({ name: "Large", value: "3x" })
     ),
 
   async execute(interaction: CommandInteraction) {
-    let done = true;
     const value = interaction.options.data[0].value.toString();
+
     if (!value) {
-      done = false;
+      return interaction.followUp({
+        ephemeral: true,
+        content: "Failed to provide a query...",
+      });
     }
+
+    if (value.length <= 3) {
+      return interaction.followUp({
+        ephemeral: true,
+        content: "Query must be at least four characters long.",
+      });
+    }
+
+    let sizeOption = interaction.options.get("size");
+    let size = "2x";
+
+    if (sizeOption) {
+      size = sizeOption.value.toString();
+    }
+
     if (value.toString().startsWith(EMOTE_URL_CDN)) {
       interaction.followUp(value as string);
     } else {
-      const emotes = await getEmotesWithSearchQuery(value.toString());
+      const emotes = await getEmotesWithSearchQuery(value.toString(), size);
       if (emotes.length != 0) {
-        interaction.followUp(emotes[0].url);
+        return interaction.followUp(emotes[0].url);
       } else {
-        done = false;
+        return interaction.followUp({
+          ephemeral: true,
+          content: "Could not find anything using the given query...",
+        });
       }
-    }
-
-    if (!done) {
-      return interaction.followUp({
-        ephemeral: true,
-        content: "Could not find the emote you were looking for...",
-      });
     }
   },
 
@@ -51,8 +74,10 @@ export default {
       if (focusedValue.length < 3) {
         return;
       }
+
       const emotes = (await getEmotesWithSearchQuery(
-        interaction.options.getFocused()
+        interaction.options.getFocused(),
+        "2x"
       )) as SearchEmote[];
       const response = [];
       emotes.forEach((e) => {

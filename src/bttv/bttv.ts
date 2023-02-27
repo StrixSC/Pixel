@@ -21,15 +21,16 @@ export const getTrendingEmotes = async (): Promise<Emote[]> => {
 };
 
 export const getEmotesWithSearchQuery = async (
-  query: string
+  query: string,
+  size: string
 ): Promise<SearchEmote[]> => {
   try {
     const res = await axios.get<SearchEmote[]>(
-      `${SHARED_EMOTES_SEARCH_ROUTE}?query=${query}&limit=25`
+      `${SHARED_EMOTES_SEARCH_ROUTE}?query=${query}&limit=8`
     );
     const emotes = res.data;
     for (const emote of emotes) {
-      emote["url"] = `${EMOTE_URL_CDN}/${emote.id}/1x.${
+      emote["url"] = `${EMOTE_URL_CDN}/${emote.id}/${size}.${
         emote.animated ? "gif" : emote.imageType
       }`;
     }

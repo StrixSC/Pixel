@@ -58,25 +58,30 @@ class ExtendedClient extends Client {
     public async registerCommands({ commands, guildId="" }) {
         const rest = new REST({ version: '10' }).setToken(this.config.token);
         (async () => {
-            try {
-                console.log(`Started refreshing ${commands.length} application (/) commands.`);
-                let data: any;
-                if (guildId) {
-                    data = await rest.put(
-                        Routes.applicationGuildCommands(this.config.clientId, guildId),
-                        { body: commands },
-                    );
-                } else {
-                    data = await rest.put(
-                        Routes.applicationCommands(this.config.clientId),
-                        { body: commands },
-                    );
-                }
-
-                console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-            } catch (error) {
-                console.error(error);
+          try {
+            console.log(
+              `Started refreshing ${commands.length} application (/) commands.`
+            );
+            let data: any;
+            if (guildId) {
+              data = await rest.put(
+                Routes.applicationGuildCommands(this.config.clientId, guildId),
+                { body: commands }
+              );
+            } else {
+              data = await rest.put(
+                Routes.applicationCommands(this.config.clientId),
+                { body: commands }
+              );
+              console.log(JSON.stringify(data));
             }
+
+            console.log(
+              `Successfully reloaded ${data.length} application (/) commands.`
+            );
+          } catch (error) {
+            console.error(error);
+          }
         })();
     }
 }
